@@ -18,7 +18,8 @@ def load_and_merge_data(merged_file):
     - pandas.DataFrame: DataFrame with Date as index.
     """
     df = pd.read_csv(merged_file)
-    df["Date"] = pd.to_datetime(df["Date"])
+    # Handle DD/MM/YYYY format explicitly with dayfirst=True to avoid parsing errors
+    df["Date"] = pd.to_datetime(df["Date"], dayfirst=True)
     df = df.rename(columns={"Trends": "Search_Interest"})
     df = df.set_index("Date")
     return df
