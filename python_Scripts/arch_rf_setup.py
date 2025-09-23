@@ -1,32 +1,11 @@
-import sys
-import subprocess
-
-def install(package):
-    subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-
-try:
-    import pandas as pd
-    import numpy as np
-    from arch import arch_model
-    from sklearn.ensemble import RandomForestRegressor
-    from sklearn.model_selection import train_test_split, GridSearchCV
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.metrics import mean_squared_error, mean_absolute_error
-    import matplotlib.pyplot as plt
-except ImportError as e:
-    missing_package = str(e).split()[-1].replace("'", "")
-    print(f"Installing {missing_package}...")
-    install(missing_package)
-    # Reload imports after installation
-    import pandas as pd
-    import numpy as np
-    from arch import arch_model
-    from sklearn.ensemble import RandomForestRegressor
-    from sklearn.model_selection import train_test_split, GridSearchCV
-    from sklearn.preprocessing import StandardScaler
-    from sklearn.metrics import mean_squared_error, mean_absolute_error
-    import matplotlib.pyplot as plt
-
+import pandas as pd
+import numpy as np
+from arch import arch_model
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import mean_squared_error, mean_absolute_error
+import matplotlib.pyplot as plt
 
 def load_and_merge_data(merged_file):
     """
