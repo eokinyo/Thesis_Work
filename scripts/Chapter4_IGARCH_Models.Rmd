@@ -1,0 +1,597 @@
+---
+title: "Chapter 4: IGARCH Model Estimation and Forecasting"
+subtitle: "Supporting R analysis for Python empirical notebook"
+author: "Thesis Author"
+date: "`r format(Sys.Date(), '%Y-%m-%d')`"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    theme: default
+    fig_caption: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = TRUE,
+  warning = FALSE,
+  comment = NA,
+  fig.width = 10,
+  fig.height = 6
+)
+```
+
+# Overview
+
+This R Markdown document performs the complete IGARCH analysis pipeline for Chapter 4:
+
+1. **IGARCH(1,1) parameter estimation** (baseline, no sentiment)
+2. **IGARCH-X(1,1) parameter estimation** (sentiment-augmented)
+3. **Walk-forward 1-step-ahead variance forecasts** (all four IGARCH variants)
+4. **Residual diagnostics** (Ljung-Box tests on standardized residuals)
+
+**Output files** (imported by Python notebook):
+- `igarch_params_from_r.csv` → IGARCH baseline parameters
+- `igarchx_params_from_r.csv` → IGARCH-X sentiment parameters
+- `igarch_oos_forecasts_from_r.csv` → OOS forecasts (all models)
+- `igarch_diag_from_r.csv` → Baseline IGARCH diagnostics
+- `igarchx_diag_from_r.csv` → Sentiment IGARCH-X diagnostics
+
+---
+
+# Setup & Data Loading
+
+## Install / Load Packages
+
+```{r load-packages}
+# Install if not present
+required_packages <- c("rugarch", "readr", "dplyr")
+
+for (pkg in required_packages) {
+  if (!require(pkg, character.only = TRUE)) {
+    install.packages(pkg, dependencies = TRUE)
+    library(pkg, character.only = TRUE)
+  }
+}
+
+cat("Packages loaded successfully.\n")
+```
+
+## Load and Prepare Data
+
+```{r load-data}
+# ---- Data path (adjust if needed) ----
+DATA_PATH <- "../Data/final_data.csv"
+
+# ---- Load ----
+df <- read_csv(DATA_PATH, show_col_types = FALSE)
+
+# ---- Date parsing: dd/mm/yyyy format ----
+# If your dates are in dd/mm/yyyy, use this:
+df$Date <- as.Date(df$Date, format = "%d/%m/%Y")
+
+# Sanity check
+if (any(is.na(df$Date))) {
+  stop("Date parsing failed. Check date format.")
+}
+
+# ---- Sort by date ----
+df <- df[order(df$Date), ]
+
+# ---- Standardize sentiment column name ----
+if ("Trends" %in% names(df) && !("Search_Interest" %in% names(df))) {
+  df$Search_Interest <- df$Trends
+}
+
+# ---- Compute log returns (percent) ----
+df$r <- 100 * (log(df$Close) - log(dplyr::lag(df$Close)))
+df <- df[!is.na(df$r), ]
+
+# ---- Report ----
+N <- nrow(df)
+cat("Data loaded successfully.\n")
+cat("Date range:", as.character(min(df$Date)), "→", as.character(max(df$Date)), "\n")
+cat("Observations (after returns):", N, "\n")
+cat("Columns:", paste(names(df), collapse = ", "), "\n\n")
+```
+
+---
+
+# Section 1: IGARCH(1,1) Parameter Estimation
+
+## Specify Models
+
+```{r igarch-spec}
+r <- df$r
+
+# Baseline IGARCH with Normal innovations
+spec_igarch_norm <- ugarchspec(
+  variance.model = list(
+    model = "iGARCH",
+    garchOrder = c(1, 1)
+  ),
+  mean.model = list(
+    armaOrder = c(0, 0),
+    include.mean = TRUE
+  ),
+  distribution.model = "norm"
+)
+
+# Baseline IGARCH with Student-t innovations
+spec_igarch_std <- ugarchspec(
+  variance.model = list(
+    model = "iGARCH",
+    garchOrder = c(1, 1)
+  ),
+  mean.model = list(
+    armaOrder = c(0, 0),
+    include.mean = TRUE
+  ),
+  distribution.model = "std"
+)
+
+cat("IGARCH model specifications created.\n")
+```
+
+## Estimate Models
+
+```{r igarch-fit}
+# Fit IGARCH with Normal innovations
+fit_igarch_norm <- ugarchfit(
+  spec = spec_igarch_norm,
+  data = r,
+  solver = "solnp",
+  fit.control = list(eval.se = TRUE)
+)
+
+# Fit IGARCH with Student-t innovations
+fit_igarch_std <- ugarchfit(
+  spec = spec_igarch_std,
+  data = r,
+  solver = "solnp",
+  fit.control = list(eval.se = TRUE)
+)
+
+cat("IGARCH models fitted successfully.\n")
+cat("Solver:", "solnp", "\n\n")
+```
+
+## Extract and Export IGARCH Parameters
+
+```{r igarch-params}
+# Extract coefficients
+params_igarch_norm <- coef(fit_igarch_norm)
+params_igarch_std <- coef(fit_igarch_std)
+
+# Create unified parameter table
+all_params <- sort(unique(c(names(params_igarch_norm), names(params_igarch_std))))
+
+igarch_params <- data.frame(
+  param = all_params,
+  IGARCH_Normal = as.numeric(params_igarch_norm[all_params]),
+  IGARCH_Student_t = as.numeric(params_igarch_std[all_params])
+)
+
+# Add log-likelihood (useful metric)
+ll_row <- data.frame(
+  param = "loglik",
+  IGARCH_Normal = likelihood(fit_igarch_norm),
+  IGARCH_Student_t = likelihood(fit_igarch_std)
+)
+
+igarch_params <- rbind(igarch_params, ll_row)
+
+# Display
+cat("IGARCH Parameters:\n\n")
+print(igarch_params)
+
+# Create igarch subdirectory if needed
+if (!dir.exists("igarch")) {
+  dir.create("igarch", showWarnings = FALSE)
+}
+
+# Export to CSV
+write_csv(igarch_params, "igarch/igarch_params_from_r.csv")
+cat("\n✓ Saved: igarch/igarch_params_from_r.csv\n")
+```
+
+---
+
+# Section 2: IGARCH-X(1,1) Parameter Estimation (with Sentiment)
+
+## Prepare External Regressors
+
+```{r igarchx-prep}
+# External regressor: sentiment in variance equation
+x_sent <- as.matrix(df$Search_Interest)
+
+cat("External regressor (sentiment) prepared.\n")
+cat("Observations:", nrow(x_sent), "\n")
+cat("Regressor summary:\n")
+print(summary(as.numeric(x_sent)))
+```
+
+## Specify IGARCH-X Models
+
+```{r igarchx-spec}
+# IGARCH-X with Normal innovations
+spec_igarchx_norm <- ugarchspec(
+  variance.model = list(
+    model = "iGARCH",
+    garchOrder = c(1, 1),
+    external.regressors = x_sent
+  ),
+  mean.model = list(
+    armaOrder = c(0, 0),
+    include.mean = TRUE
+  ),
+  distribution.model = "norm"
+)
+
+# IGARCH-X with Student-t innovations
+spec_igarchx_std <- ugarchspec(
+  variance.model = list(
+    model = "iGARCH",
+    garchOrder = c(1, 1),
+    external.regressors = x_sent
+  ),
+  mean.model = list(
+    armaOrder = c(0, 0),
+    include.mean = TRUE
+  ),
+  distribution.model = "std"
+)
+
+cat("IGARCH-X model specifications created.\n")
+```
+
+## Estimate IGARCH-X Models
+
+```{r igarchx-fit}
+# Fit IGARCH-X with Normal innovations
+fit_igarchx_norm <- ugarchfit(
+  spec = spec_igarchx_norm,
+  data = r,
+  solver = "solnp",
+  fit.control = list(eval.se = TRUE)
+)
+
+# Fit IGARCH-X with Student-t innovations
+fit_igarchx_std <- ugarchfit(
+  spec = spec_igarchx_std,
+  data = r,
+  solver = "solnp",
+  fit.control = list(eval.se = TRUE)
+)
+
+cat("IGARCH-X models fitted successfully.\n")
+```
+
+## Extract and Export IGARCH-X Parameters
+
+```{r igarchx-params}
+# Extract coefficients
+params_igarchx_norm <- coef(fit_igarchx_norm)
+params_igarchx_std <- coef(fit_igarchx_std)
+
+# Create unified parameter table
+all_params_x <- sort(unique(c(names(params_igarchx_norm), names(params_igarchx_std))))
+
+igarchx_params <- data.frame(
+  param = all_params_x,
+  IGARCHX_Normal = as.numeric(params_igarchx_norm[all_params_x]),
+  IGARCHX_Student_t = as.numeric(params_igarchx_std[all_params_x])
+)
+
+# Add log-likelihood
+ll_row_x <- data.frame(
+  param = "loglik",
+  IGARCHX_Normal = likelihood(fit_igarchx_norm),
+  IGARCHX_Student_t = likelihood(fit_igarchx_std)
+)
+
+igarchx_params <- rbind(igarchx_params, ll_row_x)
+
+# Display
+cat("IGARCH-X Parameters:\n\n")
+print(igarchx_params)
+
+# Export to CSV
+write_csv(igarchx_params, "igarch/igarchx_params_from_r.csv")
+cat("\n✓ Saved: igarch/igarchx_params_from_r.csv\n")
+```
+
+---
+
+# Section 3: Walk-Forward Forecasting
+
+## Settings (must match Python notebook)
+
+```{r forecast-settings}
+# ---- Match these with your Python notebook (Cell 2 config) ----
+TEST_SIZE <- 0.20
+ROLLING_WINDOW <- 750  # Set to NA for expanding window
+LAGS <- c(10, 20)
+
+# ---- Compute split index ----
+split_idx <- floor((1 - TEST_SIZE) * N)
+n_oos <- N - split_idx
+oos_dates <- df$Date[(split_idx + 1):N]
+
+cat("Forecast Settings:\n")
+cat("  TEST_SIZE:", TEST_SIZE, "\n")
+cat("  ROLLING_WINDOW:", ROLLING_WINDOW, "\n")
+cat("  In-sample size:", split_idx, "\n")
+cat("  Out-of-sample size:", n_oos, "\n")
+cat("  OOS period:", as.character(min(oos_dates)), "→", as.character(max(oos_dates)), "\n\n")
+```
+
+## 1-Step Variance Forecast Function
+
+```{r forecast-function}
+# ---- Helper function: 1-step variance forecast ----
+one_step_var_forecast <- function(
+  spec,
+  t_idx,
+  use_external = FALSE,
+  window_length = NULL
+) {
+  # Define estimation window
+  end_est <- t_idx - 1
+  
+  if (is.na(window_length) || is.null(window_length)) {
+    start_est <- 1  # Expanding window
+  } else {
+    start_est <- max(1, end_est - window_length + 1)  # Rolling window
+  }
+  
+  # Extract data for estimation
+  r_est <- df$r[start_est:end_est]
+  
+  if (use_external) {
+    # For external regressor models
+    x_est <- as.matrix(df$Search_Interest[start_est:end_est])
+    
+    # Fit model on windowed data
+    fit <- ugarchfit(
+      spec = spec,
+      data = r_est,
+      solver = "solnp"
+    )
+    
+    # Next-period external regressor (for variance forecast)
+    x_next <- matrix(df$Search_Interest[t_idx], nrow = 1, ncol = 1)
+    
+    # 1-step ahead variance forecast
+    fc <- ugarchforecast(
+      fit,
+      n.ahead = 1,
+      external.forecasts = list(vregfor = x_next)
+    )
+  } else {
+    # For baseline models (no external regressor)
+    fit <- ugarchfit(
+      spec = spec,
+      data = r_est,
+      solver = "solnp"
+    )
+    
+    # 1-step ahead variance forecast
+    fc <- ugarchforecast(fit, n.ahead = 1)
+  }
+  
+  # Extract and return variance forecast (h_t = σ_t^2)
+  as.numeric(sigma(fc)^2)[1]
+}
+
+cat("Forecast function defined.\n\n")
+```
+
+## Generate Walk-Forward Forecasts
+
+```{r forecast-generate}
+# ---- Initialize forecast vectors ----
+f_igarch_norm  <- numeric(n_oos)
+f_igarch_std   <- numeric(n_oos)
+f_igarchx_norm <- numeric(n_oos)
+f_igarchx_std  <- numeric(n_oos)
+
+# ---- Walk-forward loop ----
+cat("Generating forecasts (this may take a few minutes)...\n")
+
+idx_forecast <- (split_idx + 1):N
+
+for (i in seq_along(idx_forecast)) {
+  t_idx <- idx_forecast[i]
+  
+  # IGARCH baseline
+  f_igarch_norm[i] <- one_step_var_forecast(
+    spec_igarch_norm,
+    t_idx,
+    use_external = FALSE,
+    window_length = ROLLING_WINDOW
+  )
+  
+  f_igarch_std[i] <- one_step_var_forecast(
+    spec_igarch_std,
+    t_idx,
+    use_external = FALSE,
+    window_length = ROLLING_WINDOW
+  )
+  
+  # IGARCH-X sentiment-augmented
+  f_igarchx_norm[i] <- one_step_var_forecast(
+    spec_igarchx_norm,
+    t_idx,
+    use_external = TRUE,
+    window_length = ROLLING_WINDOW
+  )
+  
+  f_igarchx_std[i] <- one_step_var_forecast(
+    spec_igarchx_std,
+    t_idx,
+    use_external = TRUE,
+    window_length = ROLLING_WINDOW
+  )
+  
+  # Progress indicator
+  if (i %% 50 == 0) {
+    cat("  Completed:", i, "of", n_oos, "\n")
+  }
+}
+
+cat("✓ Forecasts generated.\n\n")
+```
+
+## Export OOS Forecasts
+
+```{r forecast-export}
+# ---- Create forecast data frame ----
+forecasts_oos <- data.frame(
+  Date = oos_dates,
+  IGARCH_Normal = f_igarch_norm,
+  IGARCH_Student_t = f_igarch_std,
+  IGARCHX_Normal = f_igarchx_norm,
+  IGARCHX_Student_t = f_igarchx_std
+)
+
+# ---- Format dates as ISO 8601 (YYYY-MM-DD) for Python compatibility ----
+forecasts_oos$Date <- format(as.Date(forecasts_oos$Date), "%Y-%m-%d")
+
+# Display first and last rows
+cat("Forecast Summary:\n")
+cat("First 5 forecasts:\n")
+print(head(forecasts_oos))
+cat("\nLast 5 forecasts:\n")
+print(tail(forecasts_oos))
+
+# ---- Export to CSV ----
+write_csv(forecasts_oos, "igarch/igarch_oos_forecasts_from_r.csv")
+cat("\n✓ Saved: igarch/igarch_oos_forecasts_from_r.csv\n")
+```
+
+---
+
+# Section 4: Residual Diagnostics
+
+## Ljung-Box Test Helper
+
+```{r diagnostics-helper}
+# ---- Helper function: Ljung-Box diagnostics ----
+ljung_box_diagnostics <- function(fit, lags = c(10, 20), model_name = "") {
+  # Extract standardized residuals
+  z <- residuals(fit, standardize = TRUE)
+  z <- as.numeric(z[is.finite(z)])
+  
+  # Initialize output data frame
+  out <- data.frame(
+    lag = lags,
+    lb_stat_resid = NA_real_,
+    lb_pvalue_resid = NA_real_,
+    lb_stat_sqresid = NA_real_,
+    lb_pvalue_sqresid = NA_real_,
+    Model = model_name
+  )
+  
+  # Compute Ljung-Box for each lag
+  for (i in seq_along(lags)) {
+    L <- lags[i]
+    
+    # Test on residuals
+    bt_resid <- Box.test(z, lag = L, type = "Ljung-Box")
+    out$lb_stat_resid[i] <- unname(bt_resid$statistic)
+    out$lb_pvalue_resid[i] <- unname(bt_resid$p.value)
+    
+    # Test on squared residuals
+    bt_sqresid <- Box.test(z^2, lag = L, type = "Ljung-Box")
+    out$lb_stat_sqresid[i] <- unname(bt_sqresid$statistic)
+    out$lb_pvalue_sqresid[i] <- unname(bt_sqresid$p.value)
+  }
+  
+  out
+}
+
+cat("Ljung-Box diagnostics function defined.\n\n")
+```
+
+## IGARCH Baseline Diagnostics
+
+```{r diagnostics-igarch}
+# ---- Compute diagnostics for baseline IGARCH models ----
+diag_igarch_norm <- ljung_box_diagnostics(
+  fit_igarch_norm,
+  lags = LAGS,
+  model_name = "IGARCH-Normal"
+)
+
+diag_igarch_std <- ljung_box_diagnostics(
+  fit_igarch_std,
+  lags = LAGS,
+  model_name = "IGARCH-Student-t"
+)
+
+# ---- Combine ----
+diag_igarch <- rbind(diag_igarch_norm, diag_igarch_std)
+
+# Display
+cat("IGARCH Baseline Diagnostics (Ljung-Box):\n\n")
+print(diag_igarch)
+
+# Export
+write_csv(diag_igarch, "igarch/igarch_diag_from_r.csv")
+cat("\n✓ Saved: igarch/igarch_diag_from_r.csv\n")
+```
+
+## IGARCH-X Sentiment Diagnostics
+
+```{r diagnostics-igarchx}
+# ---- Compute diagnostics for sentiment IGARCH-X models ----
+diag_igarchx_norm <- ljung_box_diagnostics(
+  fit_igarchx_norm,
+  lags = LAGS,
+  model_name = "IGARCH-X Normal"
+)
+
+diag_igarchx_std <- ljung_box_diagnostics(
+  fit_igarchx_std,
+  lags = LAGS,
+  model_name = "IGARCH-X Student-t"
+)
+
+# ---- Combine ----
+diag_igarchx <- rbind(diag_igarchx_norm, diag_igarchx_std)
+
+# Display
+cat("IGARCH-X Sentiment Diagnostics (Ljung-Box):\n\n")
+print(diag_igarchx)
+
+# Export
+write_csv(diag_igarchx, "igarch/igarchx_diag_from_r.csv")
+cat("\n✓ Saved: igarch/igarchx_diag_from_r.csv\n")
+```
+
+---
+
+# Summary
+
+```{r summary}
+cat("=" %s+% 80 %s+% "=\n", sep = "")
+cat("IGARCH ANALYSIS COMPLETE\n")
+cat("=" %s+% 80 %s+% "=\n\n")
+
+cat("Output files created:\n")
+cat("  1. igarch_params_from_r.csv ............. IGARCH baseline parameters\n")
+cat("  2. igarchx_params_from_r.csv ........... IGARCH-X sentiment parameters\n")
+cat("  3. igarch_oos_forecasts_from_r.csv .... Out-of-sample variance forecasts\n")
+cat("  4. igarch_diag_from_r.csv ............. IGARCH baseline diagnostics\n")
+cat("  5. igarchx_diag_from_r.csv ............ IGARCH-X sentiment diagnostics\n\n")
+
+cat("Next step: Import these files in the Python notebook\n")
+cat("  File: Chapter4_Empirical_Analysis.ipynb\n")
+cat("  Section: 4.2.2 (Baseline models) and 4.2.3 (Sentiment models)\n")
+```
+
+---
+
+**Generated:** `r format(Sys.time(), '%Y-%m-%d %H:%M:%S')`
