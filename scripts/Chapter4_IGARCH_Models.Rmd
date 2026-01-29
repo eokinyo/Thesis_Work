@@ -45,17 +45,32 @@ This R Markdown document performs the complete IGARCH analysis pipeline for Chap
 ## Install / Load Packages
 
 ```{r load-packages}
-# Install if not present
-required_packages <- c("rugarch", "readr", "dplyr")
+# 1) Use a reliable mirror
+options(repos = c(CRAN = "https://cloud.r-project.org"))
 
-for (pkg in required_packages) {
-  if (!require(pkg, character.only = TRUE)) {
-    install.packages(pkg, dependencies = TRUE)
-    library(pkg, character.only = TRUE)
-  }
-}
+# 2) Remove any partially downloaded packages (temp folder)
+unlink(file.path(tempdir(), "downloaded_packages"), recursive = TRUE, force = TRUE)
 
-cat("Packages loaded successfully.\n")
+# 3) Increase timeout (prevents partial downloads)
+options(timeout = 600)
+
+# 4) Try installing the failing dependency explicitly as a binary
+install.packages("mclust", type = "binary")
+
+# 5) Then install rugarch (and your others)
+install.packages(c("rugarch", "readr", "dplyr"), type = "binary")
+
+options(repos = c(CRAN = "https://cloud.r-project.org"), timeout = 600)
+
+pkgs <- c("rugarch", "readr", "dplyr")
+to_install <- pkgs[!pkgs %in% rownames(installed.packages())]
+
+if (length(to_install)) install.packages(to_install, type = "binary")
+invisible(lapply(pkgs, library, character.only = TRUE))
+
+options(repos = c(CRAN = "https://cloud.r-project.org"), timeout = 600)
+install.packages("mclust", type = "source")
+
 ```
 
 ## Load and Prepare Data
@@ -576,6 +591,7 @@ cat("\n✓ Saved: igarch/igarchx_diag_from_r.csv\n")
 # Summary
 
 ```{r summary}
+library(stringi)
 cat("=" %s+% 80 %s+% "=\n", sep = "")
 cat("IGARCH ANALYSIS COMPLETE\n")
 cat("=" %s+% 80 %s+% "=\n\n")
