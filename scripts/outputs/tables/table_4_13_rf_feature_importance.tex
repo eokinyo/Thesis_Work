@@ -1,12 +1,21 @@
 \begin{table}[htbp]
 \centering
-\begin{tabular}{lrr}
+\begin{tabular}{llr}
 \toprule
- & Baseline RF & RF + Sentiment \\
+Model & Feature & Importance \\
 \midrule
-log_return & 1.0000 & 1.0000 \\
-log_volume & 0.0000 & 0.0000 \\
-Search_Interest & 0.0000 & 0.0000 \\
+RF Baseline & lag_sq_return_1 & 0.2120 \\
+RF Baseline & lag_sq_return_5 & 0.2171 \\
+RF Baseline & lag_abs_return_1 & 0.2384 \\
+RF Baseline & lag_return_1 & 0.1692 \\
+RF Baseline & lag_log_volume_1 & 0.1634 \\
+RF + Sentiment & lag_sq_return_1 & 0.2259 \\
+RF + Sentiment & lag_sq_return_5 & 0.1616 \\
+RF + Sentiment & lag_abs_return_1 & 0.1977 \\
+RF + Sentiment & lag_return_1 & 0.1544 \\
+RF + Sentiment & lag_log_volume_1 & 0.1097 \\
+RF + Sentiment & lag_sentiment_1 & 0.0405 \\
+RF + Sentiment & lag_sentiment_5 & 0.1102 \\
 \bottomrule
 \end{tabular}
 \label{tab:rf_feature_importance}

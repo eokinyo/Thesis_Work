@@ -1,0 +1,20 @@
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lll}
+\toprule
+ & Setting & Value \\
+\midrule
+0 & Return variable & log_return \\
+1 & Volatility proxy (target) & RV \\
+2 & Sentiment variable & Search_Interest \\
+3 & GARCH order (p,q) & (1,1) \\
+4 & GARCH innovations compared & normal, t \\
+5 & RF baseline features & log_return, sq_return, abs_return, log_volume, RV \\
+6 & RF sentiment-augmented features & log_return, sq_return, abs_return, log_volume, RV, Search_Interest \\
+7 & In-sample size & 2503 \\
+8 & Out-of-sample size & 626 \\
+\bottomrule
+\end{tabular}
+\caption{Model specifications and estimation setup.}
+\label{tab:model_spec}
+\end{table}
