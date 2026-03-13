@@ -363,8 +363,19 @@ cat("✓ Saved: garch_family/garch_family_params_from_r.csv\n")
 
 stopifnot("Search_Interest" %in% names(df))
 
-# Extract sentiment series
-x_sent_raw <- df$Search_Interest
+# -----------------------------------------------------
+# Lag sentiment to match methodology: S_{t-1}
+# -----------------------------------------------------
+
+df <- df %>%
+  dplyr::mutate(Search_Interest_lag = dplyr::lag(Search_Interest)) %>%
+  dplyr::filter(!is.na(Search_Interest_lag))
+
+# Update return series after lagging
+r <- df$r
+
+# Extract lagged sentiment
+x_sent_raw <- df$Search_Interest_lag
 
 # Ensure no missing values
 stopifnot(!any(is.na(x_sent_raw)))
@@ -372,7 +383,7 @@ stopifnot(!any(is.na(x_sent_raw)))
 # Convert to matrix (required by rugarch)
 x_sent <- as.matrix(x_sent_raw)
 
-# Standardise for numerical stability (mean 0, sd 1)
+# Standardise for numerical stability
 x_sent <- scale(x_sent)
 
 # Sanity checks
@@ -382,7 +393,6 @@ cat("External regressor prepared.\n")
 cat("Observations:", nrow(x_sent), "\n\n")
 
 summary(as.numeric(x_sent))
-
 ```
 
 ## Specify the GARCH-X family models
@@ -392,7 +402,7 @@ summary(as.numeric(x_sent))
 # Specify sentiment-augmented GARCH models (GARCH-X)
 # =====================================================
 # External regressor enters the conditional variance:
-#   h_t = omega + alpha*e_{t-1}^2 + beta*h_{t-1} + gamma*Sentiment_t
+#   h_t = omega + alpha*e_{t-1}^2 + beta*h_{t-1} + gamma*Sentiment_{t-1}
 
 # -------------------------------
 # 1. GARCH-X(1,1)
@@ -575,7 +585,7 @@ cat("✓ Saved: garch_family/garchx_params_from_r.csv\n")
 ```
 # Section 3: Walk-Forward Forecasting
 
-## Settings (must match Python notebook)
+## Settings
 
 ```{r forecast-settings}
 
@@ -611,6 +621,7 @@ cat("  OOS period:",
     as.character(min(oos_dates)), "→", 
     as.character(max(oos_dates)), "\n\n")
 ```
+
 ## 1-Step Variance Forecast Function
 
 ```{r forecast-function}
@@ -651,10 +662,11 @@ one_step_var_forecast <- function(
     x_next <- matrix(df$Search_Interest[t_idx], nrow = 1)
     
     # Update spec with window-specific external regressor
-    spec@model$variance.external.regressors <- x_est
+    spec_local <- spec
+    spec_local@model$variance.external.regressors <- x_est
     
     fit <- rugarch::ugarchfit(
-      spec   = spec,
+      spec   = spec_local,
       data   = r_est,
       solver = "solnp"
     )
@@ -686,6 +698,7 @@ one_step_var_forecast <- function(
 cat("Forecast function defined.\n\n")
 
 ```
+
 ## Generate walk-forward forecasts (GARCH family)
 
 ```{r forecast-generate}
@@ -870,6 +883,7 @@ cat("\n✓ Saved: garch_family/garch_family_oos_forecasts_from_r.csv\n")
 
 ```
 
+
 ---
 
 # Section 4: Residual Diagnostics
@@ -889,7 +903,8 @@ ljung_box_diagnostics <- function(fit, lags = c(10, 20), model_name = "") {
   
   # ---- Extract standardized residuals ----
   z <- residuals(fit, standardize = TRUE)
-  z <- as.numeric(z[is.finite(z)])
+  z <- as.numeric(z)
+  z <- z[is.finite(z)]
   
   n <- length(z)
   
@@ -942,6 +957,7 @@ ljung_box_diagnostics <- function(fit, lags = c(10, 20), model_name = "") {
 
 cat("Ljung–Box diagnostics function defined.\n\n")
 ```
+
 ## GARCH-family Baseline Diagnostics
 
 ```{r diagnostics-baseline}
@@ -1001,6 +1017,7 @@ cat("\n✓ Saved: garch_family/garch_family_baseline_diagnostics_from_r.csv\n")
 Ljung–Box tests on squared standardized residuals fail to reject the null of no remaining ARCH effects at conventional levels, indicating that the GARCH-family models adequately capture volatility clustering. Some residual autocorrelation remains at shorter lags, suggesting limited mean dynamics not fully absorbed by the ARMA(0,0) specification.
 
 ## Sentiment model diagnostics (GARCH-X and IGARCH-X)
+
 ```{r diagnostics-sentiment}
 
 # =====================================================
@@ -1054,10 +1071,11 @@ readr::write_csv(
 )
 
 cat("\n✓ Saved: garch_family/garch_family_sentiment_diagnostics_from_r.csv\n")
-
 ```
 
-ARCH-LM
+
+
+## ARCH-LM
 ```{r}
 # =====================================================
 # ARCH-LM Tests (Remaining ARCH Effects)

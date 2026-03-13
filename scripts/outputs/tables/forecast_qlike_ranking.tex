@@ -1,0 +1,21 @@
+\begin{table}[htbp]
+\centering
+\begin{tabular}{lrrr}
+\toprule
+ & QLIKE & Rank & Mean Loss Differential \\
+\midrule
+GARCH-Normal (R) & 1.7459 & 1 & 0.0000 \\
+IGARCH-Normal (R) & 1.7971 & 2 & -0.0512 \\
+GARCH-Student-t (R) & 1.8021 & 3 & -0.0562 \\
+IGARCH-Student-t (R) & 1.8102 & 4 & -0.0643 \\
+IGARCH-X Normal (R) & 1.8557 & 5 & -0.1098 \\
+GARCH-X Normal (R) & 1.8748 & 6 & -0.1289 \\
+IGARCH-X Student-t (R) & 1.9336 & 7 & -0.1877 \\
+RF Baseline & 1.9845 & 8 & -0.2386 \\
+RF + Sentiment & 1.9877 & 9 & -0.2418 \\
+GARCH-X Student-t (R) & 1.9985 & 10 & -0.2526 \\
+\bottomrule
+\end{tabular}
+\caption{Out-of-sample volatility forecast performance under QLIKE loss, with mean loss differentials relative to the GARCH benchmark.}
+\label{tab:forecast_qlike_ranking}
+\end{table}
