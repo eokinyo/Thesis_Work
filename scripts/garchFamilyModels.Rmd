@@ -64,12 +64,12 @@ For each model, I conduct:
 
 ## Output files (Imported by Python Notebook)
 
-- `garch_params_from_r.csv` → Baseline GARCH parameters  
-- `garchx_params_from_r.csv` → GARCH-X parameters  
-- `igarch_params_from_r.csv` → IGARCH parameters  
-- `igarchx_params_from_r.csv` → IGARCH-X parameters  
-- `garch_family_oos_forecasts_from_r.csv` → All OOS forecasts  
-- `garch_family_diagnostics_from_r.csv` → Model diagnostics
+- `garch_family_params_from_r.csv` → Baseline GARCH-family parameters  
+- `garchx_params_from_r.csv` → GARCH-X - family parameters
+- `garch_family_archlm_from_r.csv` → ARCH-LM 
+- `garch_family_baseline_diagnostics_from_r.csv` and `garch_family_sentiment_diagnostics_from_r.csv` → Model diagnostics
+- `garch_family_oos_forecasts_from_r.csv` → All OOS
+
 
 # Setup & Data Loading
 
@@ -384,7 +384,7 @@ stopifnot(!any(is.na(x_sent_raw)))
 x_sent <- as.matrix(x_sent_raw)
 
 # Standardise for numerical stability
-x_sent <- scale(x_sent)
+# x_sent <- scale(x_sent)
 
 # Sanity checks
 stopifnot(nrow(x_sent) == length(r))
@@ -598,7 +598,7 @@ cat("✓ Saved: garch_family/garchx_params_from_r.csv\n")
 
 # ---- Forecast split ----
 TEST_SIZE <- 0.20          # 20% out-of-sample
-ROLLING_WINDOW <- 750      # Set to NA for expanding window
+ROLLING_WINDOW <- 750      
 LAGS <- c(10, 20)          # Used later for diagnostics / features
 
 # ---- Sample size ----
@@ -658,8 +658,8 @@ one_step_var_forecast <- function(
   
   if (use_external) {
     
-    x_est <- as.matrix(df$Search_Interest[start_est:end_est])
-    x_next <- matrix(df$Search_Interest[t_idx], nrow = 1)
+    x_est <- as.matrix(df$Search_Interest_lag[start_est:end_est])
+    x_next <- matrix(df$Search_Interest_lag[t_idx], nrow = 1)
     
     # Update spec with window-specific external regressor
     spec_local <- spec

@@ -4,18 +4,18 @@
 \toprule
  & MSE & RMSE & MAE & Rank & Mean Loss Differential \\
 \midrule
-GARCH-Normal (R) & 37.8563 & 6.1527 & 5.0523 & 1 & 0.0000 \\
-IGARCH-Normal (R) & 64.7865 & 8.0490 & 6.1110 & 2 & 26.9303 \\
-GARCH-Student-t (R) & 91.8656 & 9.5847 & 7.9143 & 3 & 54.0093 \\
-IGARCH-Student-t (R) & 106.2590 & 10.3082 & 8.2800 & 4 & 68.4027 \\
-GARCH-X Normal (R) & 224.6288 & 14.9876 & 9.6664 & 5 & 186.7726 \\
-IGARCH-X Normal (R) & 236.7786 & 15.3876 & 8.6206 & 6 & 198.9223 \\
-IGARCH-X Student-t (R) & 273.3153 & 16.5322 & 12.5181 & 7 & 235.4590 \\
-GARCH-X Student-t (R) & 289.3610 & 17.0106 & 13.5290 & 8 & 251.5047 \\
-RF Baseline & 333.4788 & 18.2614 & 12.6380 & 9 & 295.6225 \\
-RF + Sentiment & 336.3282 & 18.3393 & 12.7271 & 10 & 298.4719 \\
+GARCH-Normal (R) & 3.7396 & 1.9338 & 1.6149 & 1 & 0.0000 \\
+GARCH-X Normal (R) & 3.7637 & 1.9400 & 1.6137 & 2 & -0.0242 \\
+IGARCH-Normal (R) & 4.2515 & 2.0619 & 1.7119 & 3 & -0.5119 \\
+IGARCH-X Normal (R) & 4.2655 & 2.0653 & 1.7154 & 4 & -0.5259 \\
+GARCH-Student-t (R) & 4.8441 & 2.2009 & 1.8798 & 5 & -1.1045 \\
+IGARCH-Student-t (R) & 4.9916 & 2.2342 & 1.9139 & 6 & -1.2520 \\
+IGARCH-X Student-t (R) & 5.1015 & 2.2586 & 1.9320 & 7 & -1.3619 \\
+GARCH-X Student-t (R) & 5.6851 & 2.3843 & 2.0683 & 8 & -1.9455 \\
+RF Baseline & 7.4436 & 2.7283 & 2.3373 & 9 & -3.7040 \\
+RF + Sentiment & 7.4622 & 2.7317 & 2.3446 & 10 & -3.7226 \\
 \bottomrule
 \end{tabular}
-\caption{Forecast evaluation under the alternative volatility proxy based on absolute returns.}
+\caption{Forecast evaluation under the alternative volatility proxy based on absolute returns, with model forecasts converted from variance scale to volatility scale via square roots.}
 \label{tab:robustness_absolute_proxy}
 \end{table}

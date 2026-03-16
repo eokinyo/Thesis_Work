@@ -5,17 +5,17 @@
  & Setting & Value \\
 \midrule
 0 & Return variable & log_return \\
-1 & Volatility proxy (target) & Squared returns (r_t^2) \\
-2 & Sentiment variable & Search_Interest_lag \\
+1 & Realised volatility proxy & Squared returns (r_t^2) \\
+2 & Lagged sentiment variable & Search_Interest_lag \\
 3 & Benchmark model & GARCH_Normal \\
 4 & GARCH order (p,q) & (1,1) \\
 5 & GARCH innovations compared & normal, t \\
-6 & RF baseline features & log_return, sq_return, abs_return, log_volume \\
-7 & RF sentiment-augmented features & log_return, sq_return, abs_return, log_volume, Search_Interest_lag \\
+6 & RF baseline features & lag_sq_return_1, lag_sq_return_5, lag_abs_return_1, lag_return_1, lag_log_volume_1 \\
+7 & RF sentiment-augmented features & lag_sq_return_1, lag_sq_return_5, lag_abs_return_1, lag_return_1, lag_log_volume_1, lag_sentiment_1, lag_sentiment_5 \\
 8 & In-sample size & 2513 \\
 9 & Out-of-sample size & 629 \\
 \bottomrule
 \end{tabular}
-\caption{Model specifications and estimation setup. The primary volatility target is squared returns, consistent with the GARCH-family forecasts generated in R.}
+\caption{Model specifications and estimation setup. The primary realised volatility proxy used for evaluation is squared returns, consistent with the GARCH-family forecasts generated in R.}
 \label{tab:model_spec}
 \end{table}
