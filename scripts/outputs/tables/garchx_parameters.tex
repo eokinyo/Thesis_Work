@@ -1,8 +1,10 @@
-\begin{table}[htbp]
-\centering
+\begin{table}
+\caption{Parameter estimates for sentiment-augmented GARCH-X models imported from the R estimation step.}
+\label{tab:garchx_params}
 \begin{tabular}{lrrrrrrrr}
 \toprule
- & ('GARCHX Normal', 'Coef.') & ('GARCHX Normal', 'Std.Err.') & ('GARCHX Normal', 't-stat') & ('GARCHX Normal', 'p-value') & ('GARCHX Student t', 'Coef.') & ('GARCHX Student t', 'Std.Err.') & ('GARCHX Student t', 't-stat') & ('GARCHX Student t', 'p-value') \\
+ & \multicolumn{4}{r}{GARCHX_Normal} & \multicolumn{4}{r}{GARCHX_Student_t} \\
+ & Coef. & Std.Err. & t-stat & p-value & Coef. & Std.Err. & t-stat & p-value \\
 param &  &  &  &  &  &  &  &  \\
 \midrule
 $\mu$ & 0.1859 & 0.0553 & 3.3624 & 0.0008 & 0.1136 & 0.0403 & 2.8189 & 0.0048 \\
@@ -16,6 +18,4 @@ AIC & 5.2900 & NaN & NaN & NaN & 5.0643 & NaN & NaN & NaN \\
 BIC & 5.2996 & NaN & NaN & NaN & 5.0758 & NaN & NaN & NaN \\
 \bottomrule
 \end{tabular}
-\caption{Parameter estimates for sentiment-augmented GARCH-X models imported from the R estimation step.}
-\label{tab:garchx_params}
 \end{table}

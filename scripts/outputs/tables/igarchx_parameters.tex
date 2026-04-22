@@ -1,8 +1,10 @@
-\begin{table}[htbp]
-\centering
+\begin{table}
+\caption{Parameter estimates for sentiment-augmented IGARCH-X models imported from the R estimation step.}
+\label{tab:igarchx_params}
 \begin{tabular}{lrrrrrrrr}
 \toprule
- & ('IGARCHX Normal', 'Coef.') & ('IGARCHX Normal', 'Std.Err.') & ('IGARCHX Normal', 't-stat') & ('IGARCHX Normal', 'p-value') & ('IGARCHX Student t', 'Coef.') & ('IGARCHX Student t', 'Std.Err.') & ('IGARCHX Student t', 't-stat') & ('IGARCHX Student t', 'p-value') \\
+ & \multicolumn{4}{r}{IGARCHX_Normal} & \multicolumn{4}{r}{IGARCHX_Student_t} \\
+ & Coef. & Std.Err. & t-stat & p-value & Coef. & Std.Err. & t-stat & p-value \\
 param &  &  &  &  &  &  &  &  \\
 \midrule
 $\mu$ & 0.1804 & 0.0546 & 3.3029 & 0.0010 & 0.1205 & 0.0411 & 2.9276 & 0.0034 \\
@@ -16,6 +18,4 @@ AIC & 5.2981 & NaN & NaN & NaN & 5.0654 & NaN & NaN & NaN \\
 BIC & 5.3058 & NaN & NaN & NaN & 5.0750 & NaN & NaN & NaN \\
 \bottomrule
 \end{tabular}
-\caption{Parameter estimates for sentiment-augmented IGARCH-X models imported from the R estimation step.}
-\label{tab:igarchx_params}
 \end{table}

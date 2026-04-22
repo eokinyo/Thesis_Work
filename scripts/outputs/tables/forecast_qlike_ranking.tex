@@ -1,21 +1,20 @@
-\begin{table}[htbp]
-\centering
+\begin{table}
+\caption{Out-of-sample volatility forecast performance under QLIKE loss, with mean loss differentials relative to the GARCH-Normal benchmark.}
+\label{tab:forecast_qlike_ranking}
 \begin{tabular}{lrrr}
 \toprule
  & QLIKE & Rank & Mean Loss Differential \\
 \midrule
-GARCH-Normal (R) & 1.7459 & 1 & 0.0000 \\
-GARCH-X Normal (R) & 1.7563 & 2 & -0.0104 \\
-IGARCH-X Normal (R) & 1.7946 & 3 & -0.0487 \\
-IGARCH-Normal (R) & 1.7971 & 4 & -0.0512 \\
-GARCH-Student-t (R) & 1.8021 & 5 & -0.0562 \\
-IGARCH-Student-t (R) & 1.8102 & 6 & -0.0643 \\
-IGARCH-X Student-t (R) & 1.8221 & 7 & -0.0762 \\
-GARCH-X Student-t (R) & 1.8842 & 8 & -0.1383 \\
+GARCH-Normal & 1.7459 & 1 & 0.0000 \\
+GARCH-X Normal & 1.7563 & 2 & -0.0104 \\
+IGARCH-X Normal & 1.7946 & 3 & -0.0487 \\
+IGARCH-Normal & 1.7971 & 4 & -0.0512 \\
+GARCH-Student-t & 1.8021 & 5 & -0.0562 \\
+IGARCH-Student-t & 1.8102 & 6 & -0.0643 \\
+IGARCH-X Student-t & 1.8221 & 7 & -0.0762 \\
+GARCH-X Student-t & 1.8842 & 8 & -0.1383 \\
 RF Baseline & 1.9845 & 9 & -0.2386 \\
 RF + Sentiment & 1.9877 & 10 & -0.2418 \\
 \bottomrule
 \end{tabular}
-\caption{Out-of-sample volatility forecast performance under QLIKE loss, with mean loss differentials relative to the GARCH-Normal benchmark.}
-\label{tab:forecast_qlike_ranking}
 \end{table}

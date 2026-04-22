@@ -1,8 +1,10 @@
-\begin{table}[htbp]
-\centering
+\begin{table}
+\caption{Parameter estimates for baseline IGARCH models imported from the R estimation step.}
+\label{tab:igarch_params}
 \begin{tabular}{lrrrrrrrr}
 \toprule
- & ('IGARCH Normal', 'Coef.') & ('IGARCH Normal', 'Std.Err.') & ('IGARCH Normal', 't-stat') & ('IGARCH Normal', 'p-value') & ('IGARCH Student t', 'Coef.') & ('IGARCH Student t', 'Std.Err.') & ('IGARCH Student t', 't-stat') & ('IGARCH Student t', 'p-value') \\
+ & \multicolumn{4}{r}{IGARCH_Normal} & \multicolumn{4}{r}{IGARCH_Student_t} \\
+ & Coef. & Std.Err. & t-stat & p-value & Coef. & Std.Err. & t-stat & p-value \\
 param &  &  &  &  &  &  &  &  \\
 \midrule
 $\alpha_1$ & 0.1639 & 0.0168 & 9.7415 & 0.0000 & 0.0859 & 0.0132 & 6.4886 & 0.0000 \\
@@ -15,6 +17,4 @@ BIC & 5.3033 & NaN & NaN & NaN & 5.0724 & NaN & NaN & NaN \\
 Log-Likelihood & -8319.3774 & NaN & NaN & NaN & -7952.6269 & NaN & NaN & NaN \\
 \bottomrule
 \end{tabular}
-\caption{Parameter estimates for baseline IGARCH models imported from the R estimation step.}
-\label{tab:igarch_params}
 \end{table}

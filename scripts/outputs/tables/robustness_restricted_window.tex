@@ -1,21 +1,20 @@
-\begin{table}[htbp]
-\centering
+\begin{table}
+\caption{Forecast performance under a restricted out-of-sample evaluation window.}
+\label{tab:robustness_restricted_window}
 \begin{tabular}{llrrrrr}
 \toprule
  & Model & RMSE & MAE & RMSE Rank & MAE Rank & RMSE Loss Differential \\
 \midrule
-0 & GARCH-Normal (R) & 12.7346 & 7.0477 & 1.0000 & 2.0000 & 0.0000 \\
-1 & GARCH-X Normal (R) & 12.7466 & 7.0132 & 2.0000 & 1.0000 & -0.0120 \\
-2 & IGARCH-X Normal (R) & 13.4837 & 7.8676 & 3.0000 & 3.0000 & -0.7492 \\
-3 & IGARCH-Normal (R) & 13.4914 & 7.8867 & 4.0000 & 4.0000 & -0.7568 \\
-4 & GARCH-Student-t (R) & 13.8251 & 8.6135 & 5.0000 & 5.0000 & -1.0905 \\
-5 & IGARCH-Student-t (R) & 14.2929 & 8.9795 & 6.0000 & 6.0000 & -1.5583 \\
-6 & IGARCH-X Student-t (R) & 14.3230 & 9.1142 & 7.0000 & 7.0000 & -1.5884 \\
-7 & GARCH-X Student-t (R) & 14.4595 & 9.6804 & 8.0000 & 8.0000 & -1.7249 \\
+0 & GARCH-Normal & 12.7346 & 7.0477 & 1.0000 & 2.0000 & 0.0000 \\
+1 & GARCH-X Normal & 12.7466 & 7.0132 & 2.0000 & 1.0000 & -0.0120 \\
+2 & IGARCH-X Normal & 13.4837 & 7.8676 & 3.0000 & 3.0000 & -0.7492 \\
+3 & IGARCH-Normal & 13.4914 & 7.8867 & 4.0000 & 4.0000 & -0.7568 \\
+4 & GARCH-Student-t & 13.8251 & 8.6135 & 5.0000 & 5.0000 & -1.0905 \\
+5 & IGARCH-Student-t & 14.2929 & 8.9795 & 6.0000 & 6.0000 & -1.5583 \\
+6 & IGARCH-X Student-t & 14.3230 & 9.1142 & 7.0000 & 7.0000 & -1.5884 \\
+7 & GARCH-X Student-t & 14.4595 & 9.6804 & 8.0000 & 8.0000 & -1.7249 \\
 8 & RF + Sentiment & 21.3354 & 13.2051 & 9.0000 & 9.0000 & -8.6008 \\
 9 & RF Baseline & 21.6197 & 13.2073 & 10.0000 & 10.0000 & -8.8851 \\
 \bottomrule
 \end{tabular}
-\caption{Forecast performance under a restricted out-of-sample evaluation window.}
-\label{tab:robustness_restricted_window}
 \end{table}

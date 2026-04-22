@@ -1,0 +1,22 @@
+\begin{table}
+\caption{Feature importance rankings for the Random Forest volatility models.}
+\label{tab:rf_feature_importance}
+\begin{tabular}{lllr}
+\toprule
+ & Model & Feature & Importance \\
+\midrule
+0 & RF + Sentiment & lag_abs_return_1 & 0.2101 \\
+1 & RF + Sentiment & lag_sq_return_1 & 0.2088 \\
+2 & RF + Sentiment & lag_sq_return_5 & 0.1799 \\
+3 & RF + Sentiment & lag_return_1 & 0.1214 \\
+4 & RF + Sentiment & lag_log_volume_1 & 0.1155 \\
+5 & RF + Sentiment & lag_sentiment_5 & 0.1149 \\
+6 & RF + Sentiment & lag_sentiment_1 & 0.0494 \\
+7 & RF Baseline & lag_sq_return_5 & 0.2511 \\
+8 & RF Baseline & lag_abs_return_1 & 0.2345 \\
+9 & RF Baseline & lag_sq_return_1 & 0.2214 \\
+10 & RF Baseline & lag_log_volume_1 & 0.1570 \\
+11 & RF Baseline & lag_return_1 & 0.1360 \\
+\bottomrule
+\end{tabular}
+\end{table}

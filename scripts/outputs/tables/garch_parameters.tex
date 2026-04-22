@@ -1,8 +1,10 @@
-\begin{table}[htbp]
-\centering
+\begin{table}
+\caption{Parameter estimates for baseline GARCH models imported from the R estimation step.}
+\label{tab:garch_params}
 \begin{tabular}{lrrrrrrrr}
 \toprule
- & ('GARCH Normal', 'Coef.') & ('GARCH Normal', 'Std.Err.') & ('GARCH Normal', 't-stat') & ('GARCH Normal', 'p-value') & ('GARCH Student t', 'Coef.') & ('GARCH Student t', 'Std.Err.') & ('GARCH Student t', 't-stat') & ('GARCH Student t', 'p-value') \\
+ & \multicolumn{4}{r}{GARCH_Normal} & \multicolumn{4}{r}{GARCH_Student_t} \\
+ & Coef. & Std.Err. & t-stat & p-value & Coef. & Std.Err. & t-stat & p-value \\
 param &  &  &  &  &  &  &  &  \\
 \midrule
 $\alpha_1$ & 0.1192 & 0.0142 & 8.3671 & 0.0000 & 0.0857 & 0.0139 & 6.1765 & 0.0000 \\
@@ -15,6 +17,4 @@ BIC & 5.2971 & NaN & NaN & NaN & 5.0751 & NaN & NaN & NaN \\
 Log-Likelihood & -8305.5939 & NaN & NaN & NaN & -7952.8942 & NaN & NaN & NaN \\
 \bottomrule
 \end{tabular}
-\caption{Parameter estimates for baseline GARCH models imported from the R estimation step.}
-\label{tab:garch_params}
 \end{table}
