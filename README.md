@@ -1,15 +1,93 @@
-# Bitcoin Price and Google Trends Correlation Analysis
+# Does Google Trends Improve Bitcoin Volatility Forecasts?  
+**Evidence from Sentiment-Augmented GARCH and Random Forest Models**
+
+Master’s Thesis — Elly Okinyo  
+University of Helsinki, May 2026
 
 ## Project Overview
-This repository supports a thesis examining the relationship between Bitcoin (BTC-USD) prices and public interest, measured by Google search trends for the keyword "Bitcoin." The analysis covers data from January 1, 2017, to the most recent available date (yesterday). Key components include data fetching scripts, with plans for merging, cleaning, statistical analysis (e.g., correlation, regression), and visualizations.
 
-### Thesis Objectives
-- Fetch and preprocess historical BTC price data (Open, Close, Volume) using yfinance.
-- Retrieve Google Trends data using pytrends, handling API limitations by fetching in six-month intervals.
-- Merge datasets on daily dates for analysis.
-- Investigate correlations and trends, with evidence-based insights.
-- Note: All scripts are designed for Windows compatibility using Python 3.x, with libraries from the standard environment (e.g., pandas, numpy, matplotlib for future steps).
+This repository contains all code, data, and materials for the master’s thesis **"Does Google Trends Improve Bitcoin Volatility Forecasts? Evidence from Sentiment-Augmented GARCH and Random Forest Models"**.
 
-## Installation and Setup
-1. Ensure Python 3.x is installed on your Windows machine.
-2. Install required libraries (no external installations beyond pip):
+The study conducts a systematic comparison of classical GARCH-family models (GARCH(1,1), IGARCH(1,1), and their sentiment-augmented versions) with Random Forest regression for one-step-ahead Bitcoin volatility forecasting. Google Trends search interest is used as a proxy for investor attention. The analysis covers daily data from **1 January 2017 to 8 September 2025**.
+
+Key components include:
+- Data collection and preprocessing
+- Econometric modeling (GARCH / IGARCH in R)
+- Machine learning (Random Forest in Python)
+- Out-of-sample forecast evaluation using QLIKE loss, SPA test, and MCS procedure
+- Extensive robustness checks
+- Full LaTeX thesis write-up
+
+## Repository Structure
+Thesis_Work/
+├── scripts/
+│   ├── Chapter4_GARCH_Family.Rmd          # GARCH-family estimation (R)
+│   ├── Chapter4_Empirical_Analysis.ipynb  # Data prep, RF models, evaluation (Python)
+│   └── WriteUps/                          # Complete LaTeX source files of the thesis
+├── Data/                                  # Raw and processed datasets + fetching scripts
+│   ├── bitcoin_data.csv
+│   ├── google_trends_data.csv
+│   └── data_fetching_scripts/
+├── outputs/                               # All generated tables and figures used in the thesis
+│   ├── tables/
+│   └── figures/
+├── README.md
+└── requirements.txt                       # Python dependencies
+
+
+## Data Sources
+
+- **Bitcoin daily price and volume data**: Downloaded via the `yfinance` library (ticker: BTC-USD).
+- **Google Trends search interest**: Collected using the `pytrends` library for the keyword "Bitcoin". Data were fetched in six-month windows due to API limitations and then concatenated and re-normalized.
+
+All raw and processed datasets are included in the `Data/` folder.
+
+## How to Reproduce the Analysis
+
+### 1. Prerequisites
+- Python 3.9+ (recommended)
+- R (with `rmarkdown`, `rugarch`, and `sandwich` packages)
+- Overleaf (or local LaTeX distribution) for compiling the thesis
+
+### 2. Python Environment
+```bash
+pip install -r requirements.txt
+```
+
+### 3. Execution Order
+
+1. **(Optional)** Refresh the raw data  
+   Run the data fetching scripts located in `Data/data_fetching_scripts/`.
+
+2. **Run the Python notebook** (main analysis)  
+   Open and execute `Chapter4_Empirical_Analysis.ipynb`.  
+   This notebook handles data preparation, Random Forest modeling, forecast evaluation, SPA/MCS tests, and all robustness checks.
+
+3. **Run the R script** (GARCH-family models)  
+   Render `Chapter4_GARCH_Family.Rmd`.  
+   This estimates all GARCH(1,1), IGARCH(1,1), GARCH-X, and IGARCH-X models and exports the parameters, diagnostics, and one-step-ahead forecasts.
+
+4. The Python notebook will automatically load the R-generated outputs and produce the final tables and figures used in the thesis.
+
+All outputs (tables and figures) are saved into the `outputs/` folder.
+### 4. Compiling the Thesis
+
+The complete LaTeX source files are located in `scripts/WriteUps/`.  
+Open the main `.tex` file in Overleaf (or locally) and compile with **pdfLaTeX**.
+### Reproducibility Notes
+
+- All random seeds are fixed (`RANDOM_STATE = 42` in Python).
+- Rolling-window out-of-sample forecasts are fully aligned between the R and Python pipelines.
+- The repository is designed so that anyone can reproduce **every table and figure** in the thesis exactly.
+
+---
+
+**License**  
+This repository is made publicly available for transparency and reproducibility. All code and materials are provided under **All Rights Reserved**. The thesis document itself remains the intellectual property of the author.
+
+**Author**: Elly Okinyo  
+**Supervisor**: Professor Mika Meitz  
+**Date**: May 2026  
+
+For questions or issues, please open an issue on GitHub or contact the author.
+

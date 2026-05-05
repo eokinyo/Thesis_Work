@@ -1,26 +1,25 @@
 import pandas as pd
-from datetime import datetime
 
 # Load the datasets
 bitcoin_data = pd.read_csv("bitcoin_data.csv")
-trends_data = pd.read_csv("merged_bitcoin_trends.csv")
+trends_data = pd.read_csv("final_bitcoin_trends_clean.csv")
 
-# Ensure the 'Date' columns are in datetime format
-bitcoin_data['Date'] = pd.to_datetime(bitcoin_data['Date'])
-trends_data['date'] = pd.to_datetime(trends_data['date'])
+# Convert dates to datetime — explicitly tell pandas the correct format
+bitcoin_data['Date'] = pd.to_datetime(bitcoin_data['Date'], format='%d/%m/%Y')   # ← THIS FIXES IT
+trends_data['Date'] = pd.to_datetime(trends_data['Date'], format='%d/%m/%Y')
 
-# Rename 'date' column in trends_data to 'Date' for consistency
-trends_data.rename(columns={'date': 'Date'}, inplace=True)
-
-# Merge the datasets on the 'Date' column using an inner join
+# Merge on Date (inner join)
 merged_data = pd.merge(bitcoin_data, trends_data, on='Date', how='inner')
 
-# Select relevant columns and rename 'Bitcoin' to 'Trends'
-merged_data = merged_data[['Date', 'Open', 'Close', 'Volume', 'Bitcoin']]
-merged_data.rename(columns={'Bitcoin': 'Trends'}, inplace=True)
+# Keep only the columns needed for the thesis + R script
+merged_data = merged_data[['Date', 'Open', 'Close', 'Volume', 'Search_Interest']].copy()
 
-# Save the merged dataset to a new CSV file
+# Final sort and save
+merged_data.sort_values('Date', inplace=True)
 merged_data.to_csv("final_data.csv", index=False)
 
-print(f"Merged dataset saved to final_data.csv")
+print(f"✅ Merged dataset saved to final_data.csv")
+print(f"Final observations: {len(merged_data)}")
 print(merged_data.head())
+print("\nDate range:", merged_data['Date'].min(), "→", merged_data['Date'].max())
+print(merged_data.describe())

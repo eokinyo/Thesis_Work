@@ -1,20 +1,20 @@
 ---
-title: "Chapter 4: GARCH Family Estimation and Forecasting"
+  title: "Chapter 4: GARCH Family Estimation and Forecasting"
 subtitle: "Supporting R Analysis for Empirical Notebook"
 author: "Elly Okinyo"
 date: "`r format(Sys.Date(), '%d-%m-%Y')`"
 output:
   html_document:
-    toc: true
-    toc_depth: 3
-    number_sections: true
-    theme: cosmo
-    df_print: paged
-    fig_caption: true
+  toc: true
+toc_depth: 3
+number_sections: true
+theme: cosmo
+df_print: paged
+fig_caption: true
 editor_options:
   chunk_output_type: console
 ---
-
+  
 ```{r setup, include=FALSE}
 # Global chunk options
 knitr::opts_chunk$set(
@@ -47,24 +47,24 @@ library(xts)
 This R Markdown document implements the complete **GARCH-family econometric analysis** for Chapter 4 of the thesis.
 
 The analysis proceeds in four stages:
-
-1. **GARCH(1,1) parameter estimation** (baseline, no sentiment)
+  
+  1. **GARCH(1,1) parameter estimation** (baseline, no sentiment)
 2. **GARCH-X(1,1) parameter estimation** (sentiment-augmented)
 3. **IGARCH(1,1) parameter estimation**
-4. **IGARCH-X(1,1) parameter estimation**
-
-For each model, I conduct:
-
-- In-sample estimation
+  4. **IGARCH-X(1,1) parameter estimation**
+  
+  For each model, I conduct:
+  
+  - In-sample estimation
 - Walk-forward 1-step-ahead variance forecasting
 - Residual diagnostics (Ljung–Box tests on standardized residuals)
 - Export of parameters and forecast outputs for integration with the Python empirical notebook
 
 ---
-
-## Output files (Imported by Python Notebook)
-
-- `garch_family_params_from_r.csv` → Baseline GARCH-family parameters  
+  
+  ## Output files (Imported by Python Notebook)
+  
+  - `garch_family_params_from_r.csv` → Baseline GARCH-family parameters  
 - `garchx_params_from_r.csv` → GARCH-X - family parameters
 - `garch_family_archlm_from_r.csv` → ARCH-LM 
 - `garch_family_baseline_diagnostics_from_r.csv` and `garch_family_sentiment_diagnostics_from_r.csv` → Model diagnostics
@@ -381,7 +381,7 @@ x_sent_raw <- df$Search_Interest_lag
 stopifnot(!any(is.na(x_sent_raw)))
 
 # Convert to matrix (required by rugarch)
-x_sent <- as.matrix(x_sent_raw)
+x_sent <- as.matrix(scale(x_sent_raw))
 
 # Standardise for numerical stability
 # x_sent <- scale(x_sent)
@@ -635,10 +635,10 @@ cat("  OOS period:",
 # Returns: h_{t|t-1} = sigma^2 forecast
 
 one_step_var_forecast <- function(
-  spec,
-  t_idx,
-  use_external = FALSE,
-  window_length = NULL
+    spec,
+    t_idx,
+    use_external = FALSE,
+    window_length = NULL
 ) {
   
   # ---- Define estimation window ----
@@ -885,11 +885,11 @@ cat("\n✓ Saved: garch_family/garch_family_oos_forecasts_from_r.csv\n")
 
 
 ---
-
-# Section 4: Residual Diagnostics
-
-## Ljung-Box Test Helper
-
+  
+  # Section 4: Residual Diagnostics
+  
+  ## Ljung-Box Test Helper
+  
 ```{r diagnostics-helper}
 
 # =====================================================
@@ -1152,8 +1152,8 @@ cat("✓ Saved: garch_family/garch_family_archlm_from_r.csv\n")
 
 
 ---
-
-# Summary
+  
+  # Summary
 ```{r}
 library(stringi)
 
