@@ -2,3 +2,11 @@
 .Rhistory
 .RData
 .Ruserdata
+Lit-review/
+scripts/WriteUps/
+scripts/garch_family/
+scripts/outputs/
+scripts/.RData
+scripts/.Rhistory
+*.RData
+*.Rhistory
