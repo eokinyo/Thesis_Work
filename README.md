@@ -4,6 +4,8 @@
 Master’s Thesis — Elly Okinyo  
 University of Helsinki, May 2026
 
+The thesis is published open access on Helda, the University of Helsinki repository: <https://helda.helsinki.fi/items/54af4cb8-7493-4951-850e-5ba7c10e6deb> (permanent link: <http://hdl.handle.net/10138/633236>).
+
 ## Project Overview
 
 This repository contains all code, data, and materials for the master’s thesis **"Does Google Trends Improve Bitcoin Volatility Forecasts? Evidence from Sentiment-Augmented GARCH and Random Forest Models"**.
@@ -39,7 +41,7 @@ Thesis_Work/
 ├── Lit-review/                                # Literature notes (if any)
 ├── README.md
 ├── requirements.txt                           # Python dependencies
-├── Okinyo_Elly_Masterthesis_2026.pdf          # Final compiled thesis
+├── Okinyo_Elly_Mastersthesis_2026.pdf          # Final compiled thesis
 ├── .gitignore
 └── .gitattributes
 ```
