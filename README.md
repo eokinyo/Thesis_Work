@@ -4,7 +4,7 @@
 Master’s Thesis — Elly Okinyo  
 University of Helsinki, May 2026
 
-The thesis is published open access on Helda, the University of Helsinki repository: <https://helda.helsinki.fi/items/54af4cb8-7493-4951-850e-5ba7c10e6deb> (permanent link: <http://hdl.handle.net/10138/633236>).
+The compiled thesis PDF is not stored in this repository. It is published open access on Helda, the University of Helsinki repository: <https://helda.helsinki.fi/items/54af4cb8-7493-4951-850e-5ba7c10e6deb> (permanent link: <http://hdl.handle.net/10138/633236>).
 
 ## Project Overview
 
@@ -41,7 +41,6 @@ Thesis_Work/
 ├── Lit-review/                                # Literature notes (if any)
 ├── README.md
 ├── requirements.txt                           # Python dependencies
-├── Okinyo_Elly_Mastersthesis_2026.pdf          # Final compiled thesis
 ├── .gitignore
 └── .gitattributes
 ```
@@ -95,8 +94,8 @@ Open the main `.tex` file in Overleaf (or locally) and compile with **pdfLaTeX**
 
 ---
 
-**License**  
-This repository is made publicly available for transparency and reproducibility. All code and materials are provided under **All Rights Reserved**. The thesis document itself remains the intellectual property of the author.
+**Licence**  
+Code (R, Python and notebooks) is released under the MIT License, see [LICENSE](LICENSE). The thesis text (the LaTeX sources in `scripts/WriteUps/`) is licensed under CC BY 4.0, see [LICENSE-CC-BY-4.0](LICENSE-CC-BY-4.0); the published thesis is open access under CC BY 4.0 on Helda. The datasets in `Data/` are derived from Google Trends and third-party price data and remain subject to their providers' terms.
 
 **Author**: Elly Okinyo  
 **Supervisor**: Professor Mika Meitz  
